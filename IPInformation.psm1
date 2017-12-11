@@ -13,12 +13,6 @@ function Get-IPv4Information
         (
             [parameter()] #,ValueFromPipeline=$true Mandatory=$true
             [string]$IP,
-           # [parameter()] #,ValueFromPipeline=$true Mandatory=$true
-           # [string]$IPundMaske,
-            #[parameter()] #,ValueFromPipeline=$true Mandatory=$true
-            #[string]$IP,
-           # [parameter()] #,ValueFromPipeline=$true Mandatory=$true
-           # [string]$Maske,
             [parameter()] #,ValueFromPipeline=$true Mandatory=$true
             [int]$NeueSubnetze,
             [parameter()] #,ValueFromPipeline=$true Mandatory=$true
@@ -147,25 +141,10 @@ $ipDaten += ,@($ipDatenMuster)
 
 ### Hauptroutine ###
 
-    #if(($IPundMaske -ne $null) -and ($IPundMaske -match $regexEingabe))
     if(($IP -ne $null) -and ($IP -match $regexEingabe))
         {
-          #  $eingabe = $IPundMaske
-          $eingabe = $IP
-        }
-    #elseif((($IP -ne $null) -and ($Maske -ne $null)) -and (($IP + "/" + $Maske) -match $regexEingabe))
-     #   {
-     #       $eingabe = $IP + "/" + $Maske
-      #  }
-    else
-        {
-            $fehlerMeldung = "Fehlerhafte eingabe!"
-        }
-
-    ### Eingabe aufbereiten
-
-    if($fehlerMeldung -eq "")
-        {
+            $eingabe = $IP
+            ### Eingabe aufbereiten
             $ipDaten += ,@($ipDatenLeerMuster)
             $eingabe_Array = $eingabe.Split("/")
             $ipDaten[1][0] = $eingabe_Array[0]
@@ -178,6 +157,10 @@ $ipDaten += ,@($ipDatenMuster)
                     $ipDaten[1][2] = $eingabe_Array[1]
                 }
             $ipDaten[1][8] = "Eingabe"
+        }
+    else
+        {
+            $fehlerMeldung = "Fehlerhafte eingabe!"
         }
 
     ### Auffüllen von Daten
@@ -224,7 +207,6 @@ $ipDaten += ,@($ipDatenMuster)
                     $ausgabe = ""
                     foreach($datenfeld in $datensatz)
                         {
-                       # $datenfeld 
                             $ausgabe += "$datenfeld`t"
                         }
                     Write-Output $ausgabe
@@ -242,17 +224,19 @@ function Get-IPv6Information
 
     [CmdletBinding()]Param
         (
-    
             [parameter()] #,ValueFromPipeline=$true Mandatory=$true
-            [string]$IP
-
+            [string]$IP,
+            [parameter()] #,ValueFromPipeline=$true Mandatory=$true
+            [int]$NeueSubnetze,
+            [parameter()] #,ValueFromPipeline=$true Mandatory=$true
+            [switch]$AlleIPs
         )
 
 ### Variablen ###
 [regex]$regexEingabe = "^s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:)))(%.+)?s*(\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$"
 
 $ipDaten = @()
-$ipDatenMuster = ("IP Adresse", "Maske", "IP Binär", "Maske Binär", "max IPs", "Netzwerkadresse", "Hinweis") # ipkurz mod hinweis erweitern
+$ipDatenMuster = ("IP Adresse", "Maske", "IP Binär", "Maske Binär", "max IPs", "Netzwerkadresse", "Hinweis") # ipkurz mod erweitern
 $ipDatenLeerMuster = ("", "", "", "", "", "", "")
 $ipDaten += ,@($ipDatenMuster)
 [String]$fehlerMeldung = ""
@@ -370,6 +354,7 @@ $ipDaten += ,@($ipDatenMuster)
 
     function fzusaetzlicherHinweis([String]$ip)
         {
+            # https://www.iana.org/assignments/ipv6-address-space/ipv6-address-space.xhtml
             [String]$hinweis = ""
             if($ip -match "^(0|:){39}$"){$hinweis += "Unspezifizierte Adresse "}
             if($ip -match "^(0|:){38}1$"){$hinweis += "lokaler Host "}
@@ -386,14 +371,7 @@ $ipDaten += ,@($ipDatenMuster)
     if(($IP -ne $null) -and ($IP -match $regexEingabe))
         {
             $eingabe = $IP
-        }
-    else
-        {
-            $fehlerMeldung = "Fehlerhafte eingabe!"
-        }
-
-    if($fehlerMeldung -eq "")
-        {
+            ### Eingabe aufbereiten
             $eingabe_Array = $eingabe.Split("/")
             [String]$eingabeIP = $eingabe_Array[0]
             [String]$eingabeCDIR = $eingabe_Array[1]
@@ -407,6 +385,23 @@ $ipDaten += ,@($ipDatenMuster)
             $ipDaten[1][5] = ""
             $ipDaten[1][6] = "Eingabe "  
             $ipDaten[1][6] += fzusaetzlicherHinweis $ipDaten[1][0]
+        }
+    else
+        {
+            $fehlerMeldung = "Fehlerhafte eingabe!"
+        }
+
+    ### Auffüllen von Daten
+
+    if($NeueSubnetze -ne 0)
+        {
+            "neue subs"
+        }
+
+    if($AlleIPs -eq $true)
+        {
+            "allips"
+
         }
 
     ### Ausgabe
