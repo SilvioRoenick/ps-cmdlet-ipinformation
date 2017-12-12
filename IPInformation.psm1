@@ -34,7 +34,7 @@ $ipDaten += ,@($ipDatenMuster)
 
 ### Hilfsroutinen ###
 
-    function fCDIRSuffixZuNetzmaske([String]$CDIRSuffix)
+    function CDIRSuffix-zu-Netzmaske([String]$CDIRSuffix)
         {
             [String]$netzmaskeBinaer_String = ""
             [String]$netzmaske_String = ""
@@ -47,20 +47,20 @@ $ipDaten += ,@($ipDatenMuster)
             $netzmaskeBinaer_String = $netzmaskeBinaer_String.Insert(8,".")
             $netzmaskeBinaer_String = $netzmaskeBinaer_String.Insert(17,".")
             $netzmaskeBinaer_String = $netzmaskeBinaer_String.Insert(26,".")
-            $netzmaske_String = fbinaerStringZuDezimalString $netzmaskeBinaer_String
+            $netzmaske_String = BinaerString-zu-DezimalString $netzmaskeBinaer_String
             return $netzmaske_String
         }
 
-    function fNetzmaskeZuCDIRSuffix([String]$netzmaske)
+    function Netzmaske-zu-CDIRSuffix([String]$netzmaske)
         {
-            [String]$netzmaskeBinaer_String = fdezimalStringZuBinaerString $netzmaske
+            [String]$netzmaskeBinaer_String = DezimalString-zu-BinaerString $netzmaske
             [String]$cidrSuffix_String = ""
             [regex]$regex = "1"
             $cidrSuffix_String = $regex.matches($netzmaskeBinaer_String).count
             return $cidrSuffix_String
         }
 
-    function fdezimalStringZuBinaerString([String]$dezimal_String)
+    function DezimalString-zu-BinaerString([String]$dezimal_String)
         {
             [String]$binaer_String = ""
             [String[]]$tmp_Array = ""
@@ -75,7 +75,7 @@ $ipDaten += ,@($ipDatenMuster)
             return $binaer_String
         }
 
-    function fbinaerStringZuDezimalString([String]$binaer_String)
+    function BinaerString-zu-DezimalString([String]$binaer_String)
         {
             [String]$dezimal_String = ""
             [String[]]$tmp_Array = ""
@@ -90,7 +90,7 @@ $ipDaten += ,@($ipDatenMuster)
             return $dezimal_String
         }
 
-    function fberechneAnzahlSubnetIPs([String]$netzmaskeBinaer_String)
+    function Berechne-AnzahlSubnetIPs([String]$netzmaskeBinaer_String)
         {
             [Double]$anzahl = 0
             [String]$tmp = $netzmaskeBinaer_String.Replace(".","")
@@ -100,7 +100,7 @@ $ipDaten += ,@($ipDatenMuster)
             return $anzahl
         }
 
-    function fberechneNetzwerkadresse([String]$ip_String, [String]$netzmaske_String)
+    function Berechne-Netzwerkadresse([String]$ip_String, [String]$netzmaske_String)
         {
             [String]$netzwerkadresse = ""
             [byte[]]$ip_Array = $ip_String.split('.')
@@ -116,7 +116,7 @@ $ipDaten += ,@($ipDatenMuster)
             return $netzwerkadresse
         }
 
-    function fberechneBroadcast([String]$ipBinaer_String, [String]$netzmaskeBinaer_String)
+    function Berechne-Broadcast([String]$ipBinaer_String, [String]$netzmaskeBinaer_String)
         {
             [String]$broadcast = ""
             $netzmaskeBinaerInvert_String = $netzmaskeBinaer_String
@@ -182,13 +182,13 @@ $ipDaten += ,@($ipDatenMuster)
         {
             #$i
             #$ipDaten[$i][0]
-            if($($ipDaten[$i][1]) -eq "") { $ipDaten[$i][1] = fCDIRSuffixZuNetzmaske($ipDaten[$i][2]) }
-            if($($ipDaten[$i][2]) -eq "") { $ipDaten[$i][2] = fNetzmaskeZuCDIRSuffix($ipDaten[$i][1]) }
-            $ipDaten[$i][3] = fdezimalStringZuBinaerString $ipDaten[$i][0] 
-            $ipDaten[$i][4] = fdezimalStringZuBinaerString $ipDaten[$i][1] 
-            $ipDaten[$i][5] = fberechneAnzahlSubnetIPs $ipDaten[$i][4]
-            $ipDaten[$i][6] = fberechneNetzwerkadresse $ipDaten[$i][0] $ipDaten[$i][1]
-            $ipDaten[$i][7] = fberechneBroadcast $ipDaten[$i][3] $ipDaten[$i][4]
+            if($($ipDaten[$i][1]) -eq "") { $ipDaten[$i][1] = CDIRSuffix-zu-Netzmaske($ipDaten[$i][2]) }
+            if($($ipDaten[$i][2]) -eq "") { $ipDaten[$i][2] = Netzmaske-zu-CDIRSuffix($ipDaten[$i][1]) }
+            $ipDaten[$i][3] = DezimalString-zu-BinaerString $ipDaten[$i][0] 
+            $ipDaten[$i][4] = DezimalString-zu-BinaerString $ipDaten[$i][1] 
+            $ipDaten[$i][5] = Berechne-AnzahlSubnetIPs $ipDaten[$i][4]
+            $ipDaten[$i][6] = Berechne-Netzwerkadresse $ipDaten[$i][0] $ipDaten[$i][1]
+            $ipDaten[$i][7] = Berechne-Broadcast $ipDaten[$i][3] $ipDaten[$i][4]
             #$ipDaten[$i][8]
         }
 
@@ -235,18 +235,27 @@ function Get-IPv6Information
 ### Variablen ###
 [regex]$regexEingabe = "^s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:)))(%.+)?s*(\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8]))?$"
 
-$ipDaten = @()
-$ipDatenMuster = ("IP Adresse", "Maske", "IP Binär", "Maske Binär", "max IPs", "Netzwerkadresse", "Hinweis") # ipkurz mod erweitern
-$ipDatenLeerMuster = ("", "", "", "", "", "", "")
-$ipDaten += ,@($ipDatenMuster)
-[String]$fehlerMeldung = ""
-
 ### Variablen Ende ###
 
+$ipDaten = New-Object System.Data.DataTable("IPv6")
+$spalte0 = New-Object System.Data.DataColumn("IP Adresse")
+$spalte1 = New-Object System.Data.DataColumn("Maske")
+$spalte2 = New-Object System.Data.DataColumn("IP Binär")
+$spalte3 = New-Object System.Data.DataColumn("Maske Binär")
+$spalte4 = New-Object System.Data.DataColumn("max IPs")
+$spalte5 = New-Object System.Data.DataColumn("Netzwerkadresse")
+$spalte6 = New-Object System.Data.DataColumn("Hinweis")
+$ipDaten.Columns.Add($spalte0)
+$ipDaten.Columns.Add($spalte1)
+$ipDaten.Columns.Add($spalte2)
+$ipDaten.Columns.Add($spalte3)
+$ipDaten.Columns.Add($spalte4)
+$ipDaten.Columns.Add($spalte5)
+$ipDaten.Columns.Add($spalte6)
 
 ### Hilfsroutinen ###
     
-    function fipauffuellen([String]$ipKurz)
+    function Auffuellen-IP([String]$ipKurz)
         {
             [String]$ipKomplett = ""
             [regex]$regex = ":" 
@@ -280,29 +289,29 @@ $ipDaten += ,@($ipDatenMuster)
             return $ipKomplett.ToUpper()
         }
 
-    function fhexStringZuBinaerString([String]$hex_String)
+    function HexString-zu-BinaerString([String]$hex_String)
         {
             [String]$binaer_String = ""
             [String[]]$hex_Array = $hex_String.split(':')
-            $binaer_String += fnibbelZuBinaerString $hex_Array[0]
+            $binaer_String += Nibbel-zu-BinaerString $hex_Array[0]
             $binaer_String += ":"
-            $binaer_String += fnibbelZuBinaerString $hex_Array[1]
+            $binaer_String += Nibbel-zu-BinaerString $hex_Array[1]
             $binaer_String += ":"
-            $binaer_String += fnibbelZuBinaerString $hex_Array[2]
+            $binaer_String += Nibbel-zu-BinaerString $hex_Array[2]
             $binaer_String += ":"
-            $binaer_String += fnibbelZuBinaerString $hex_Array[3]
+            $binaer_String += Nibbel-zu-BinaerString $hex_Array[3]
             $binaer_String += ":"
-            $binaer_String += fnibbelZuBinaerString $hex_Array[4]
+            $binaer_String += Nibbel-zu-BinaerString $hex_Array[4]
             $binaer_String += ":"
-            $binaer_String += fnibbelZuBinaerString $hex_Array[5]
+            $binaer_String += Nibbel-zu-BinaerString $hex_Array[5]
             $binaer_String += ":"
-            $binaer_String += fnibbelZuBinaerString $hex_Array[6]
+            $binaer_String += Nibbel-zu-BinaerString $hex_Array[6]
             $binaer_String += ":"
-            $binaer_String += fnibbelZuBinaerString $hex_Array[7]
+            $binaer_String += Nibbel-zu-BinaerString $hex_Array[7]
             return $binaer_String
         }
 
-    function fnibbelZuBinaerString([String]$nibbel)
+    function Nibbel-zu-BinaerString([String]$nibbel)
         {
             [String]$nibbelBinaer_String = ""
             $nibbel_CharArray = [char[]]$nibbel
@@ -323,7 +332,7 @@ $ipDaten += ,@($ipDatenMuster)
         }
 
 
-    function fcdirZuBinaer($CDIRSuffix)
+    function CDIR-zu-Binaer($CDIRSuffix)
         {
             [String]$netzmaskeBinaer_String = ""
             $CDIRSuffix = [int]$CDIRSuffix
@@ -342,7 +351,7 @@ $ipDaten += ,@($ipDatenMuster)
             return $netzmaskeBinaer_String
         }
 
-    function fberechneAnzahlSubnetIPs([String]$netzmaskeBinaer_String)
+    function Berechne-AnzahlSubnetIPs([String]$netzmaskeBinaer_String)
         {
             [Double]$anzahl = 0
             [String]$tmp = $netzmaskeBinaer_String.Replace(":","")
@@ -352,7 +361,7 @@ $ipDaten += ,@($ipDatenMuster)
             return $anzahl
         }
 
-    function fzusaetzlicherHinweis([String]$ip)
+    function Hinzufuegen-Hinweis([String]$ip)
         {
             # https://www.iana.org/assignments/ipv6-address-space/ipv6-address-space.xhtml
             [String]$hinweis = ""
@@ -365,7 +374,6 @@ $ipDaten += ,@($ipDatenMuster)
 ### Hilfsroutinen Ende ###
 
 
-
 ### Hauptroutine ###
 
     if(($IP -ne $null) -and ($IP -match $regexEingabe))
@@ -375,20 +383,22 @@ $ipDaten += ,@($ipDatenMuster)
             $eingabe_Array = $eingabe.Split("/")
             [String]$eingabeIP = $eingabe_Array[0]
             [String]$eingabeCDIR = $eingabe_Array[1]
-            [String]$ip = fipauffuellen $eingabeIP
-            $ipDaten += ,@($ipDatenLeerMuster)
-            $ipDaten[1][0] = $ip
-            $ipDaten[1][1] = $eingabeCDIR
-            $ipDaten[1][2] = fhexStringZuBinaerString $ip
-            $ipDaten[1][3] = fcdirZuBinaer $eingabeCDIR
-            $ipDaten[1][4] = fberechneAnzahlSubnetIPs $ipDaten[1][3]
-            $ipDaten[1][5] = ""
-            $ipDaten[1][6] = "Eingabe "  
-            $ipDaten[1][6] += fzusaetzlicherHinweis $ipDaten[1][0]
+            [String]$ip = Auffuellen-IP $eingabeIP
+            $zeile = $ipDaten.NewRow()
+            $zeile."IP Adresse" = $IP
+            $zeile."Maske" = $eingabeCDIR
+            $zeile."IP Binär" = HexString-zu-BinaerString $ip
+            $zeile."Maske Binär" = CDIR-zu-Binaer $eingabeCDIR
+            $zeile."max IPs" = Berechne-AnzahlSubnetIPs $(CDIR-zu-Binaer $eingabeCDIR)
+            $zeile."Netzwerkadresse" = ""
+            $zeile."Hinweis" = "Eingabe " + $(Hinzufuegen-Hinweis $ip)
+            $ipDaten.Rows.Add($zeile)
+            ### Ausgabe
+            $ipDaten #.Rows | Format-Table
         }
     else
         {
-            $fehlerMeldung = "Fehlerhafte eingabe!"
+            Write-Output "Fehlerhafte eingabe!"
         }
 
     ### Auffüllen von Daten
@@ -401,18 +411,6 @@ $ipDaten += ,@($ipDatenMuster)
     if($AlleIPs -eq $true)
         {
             "allips"
-
-        }
-
-    ### Ausgabe
-
-    if($fehlerMeldung -ne "")
-        {
-            Write-Output $fehlerMeldung
-        }
-        else
-        {
-            $ipDaten
         }
 
 ### Hauptroutine Ende ###
